@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 #include "SequentialFFT.h"
 #include "logger.h"
+=======
+#include "include/SequentialFFT.h"
+#include "include/logger.h"
+>>>>>>> cd1da53ea12756933579d258050235fcd5ff4fee
 // #include <opencv2/core/core.hpp>
 // #include <opencv2/highgui/highgui.hpp>
 #include <math.h>
