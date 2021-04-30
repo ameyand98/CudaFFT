@@ -149,7 +149,18 @@ namespace Sequential {
 }
 
 int main() {
-    
+    Mat img_matrix;
+    img_matrix = cv::imread("img/flower.jpg", CV_LOAD_IMAGE_GRAYSCALE);
+
+    Logger::log_info("Image read", false);
+    cv::imwrite("orig.jpg", img_matrix);
+    vector<vector<uint8_t>> image(img_matrix.rows, vector<uint8_t>(img_matrix.cols));
+    for (int i = 0; i < img_matrix.rows; i++) {
+        for (int j = 0; j < img_matrix.cols; j++) {
+            image[i][j] = uint8_t(img_matrix.at<uint8_t>(i, j));
+        }
+    }
+
 }
 
 
