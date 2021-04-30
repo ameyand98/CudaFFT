@@ -1,7 +1,7 @@
 #include "include/SequentialFFT.h"
 #include "include/logger.h"
-#include <opencv2/core/core.hpp>
-#include <opencv2/highgui/highgui.hpp>
+// #include <opencv2/core/core.hpp>
+// #include <opencv2/highgui/highgui.hpp>
 #include <math.h>
 
 const double ANGLE_MULT = 2 * M_PI;
@@ -141,6 +141,10 @@ namespace Sequential {
 
         Logger::log_info("Image compressed", false);
 
+    }
+
+    vector<int> multiply_poly(vector<int> first, vector<int> sec) {
+        
     }
 }
 
