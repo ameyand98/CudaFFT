@@ -1,8 +1,9 @@
-#include "include/SequentialFFT.h"
-#include "include/logger.h"
-#include <opencv2/core/core.hpp>
-#include <opencv2/highgui/highgui.hpp>
+#include "SequentialFFT.h"
+#include "logger.h"
+// #include <opencv2/core/core.hpp>
+// #include <opencv2/highgui/highgui.hpp>
 #include <math.h>
+#include <iostream>
 
 const double ANGLE_MULT = 2 * M_PI;
 
@@ -142,20 +143,59 @@ namespace Sequential {
         Logger::log_info("Image compressed", false);
 
     }
+
+    vector<int> multiply_poly(vector<int> poly1, vector<int> poly2) {
+        vector<cmplx> f_cmplx(poly1.begin(), poly1.end()), s_cmplx(poly2.begin(), poly2.end());
+
+        int size = 1;
+        while (size < max(poly1.size(), poly2.size())) {
+            size <<= 1;
+        }
+        size <<= 1;
+
+        f_cmplx.resize(size), s_cmplx.resize(size);
+
+        fft(f_cmplx, false);
+        fft(s_cmplx, false);
+
+        for (int i = 0; i < size; i++) {
+            f_cmplx[i] *= s_cmplx[i];
+        }
+
+        fft(f_cmplx, true);
+
+        vector<int> result;
+        result.resize(size);
+
+        for (int i = 0; i < size; i++) {
+            result[i] = int(f_cmplx[i].real() + 0.5);
+        }
+
+        return result;
+    }
 }
 
 int main() {
-    Mat img_matrix;
-    img_matrix = cv::imread("img/flower.jpg", CV_LOAD_IMAGE_GRAYSCALE);
 
-    Logger::log_info("Image read", false);
-    cv::imwrite("orig.jpg", img_matrix);
-    vector<vector<uint8_t>> image(img_matrix.rows, vector<uint8_t>(img_matrix.cols));
-    for (int i = 0; i < img_matrix.rows; i++) {
-        for (int j = 0; j < img_matrix.cols; j++) {
-            image[i][j] = uint8_t(img_matrix.at<uint8_t>(i, j));
-        }
+    vector<int> a = {1,1};
+    vector<int> b = {1,2,3};
+    vector<int> result = Sequential::multiply_poly(a, b);
+    for (int i = 0; i < result.size(); i++) {
+        cout << result[i] << " ";
     }
+    cout << "\n";
+
+    // Mat img_matrix;
+    // img_matrix = cv::imread("img/flower.jpg", CV_LOAD_IMAGE_GRAYSCALE);
+
+    // Logger::log_info("Image read", false);
+    // cv::imwrite("orig.jpg", img_matrix);
+    // vector<vector<uint8_t>> image(img_matrix.rows, vector<uint8_t>(img_matrix.cols));
+    // for (int i = 0; i < img_matrix.rows; i++) {
+    //     for (int j = 0; j < img_matrix.cols; j++) {
+    //         image[i][j] = uint8_t(img_matrix.at<uint8_t>(i, j));
+    //     }
+    // }
 
 }
 
