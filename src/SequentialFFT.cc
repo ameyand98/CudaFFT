@@ -1,7 +1,7 @@
-#include "SequentialFFT.h"
+#include "FFT.h"
 #include "logger.h"
-#include <opencv2/core/core.hpp>
-#include <opencv2/highgui/highgui.hpp>
+// #include <opencv2/core/core.hpp>
+// #include <opencv2/highgui/highgui.hpp>
 #include <math.h>
 #include <iostream>
 #include <string>
@@ -186,31 +186,31 @@ int main() {
     // }
     // cout << "\n";
 
-    Mat img_matrix;
-    img_matrix = cv::imread("flower.jpg", CV_LOAD_IMAGE_GRAYSCALE);
+    // Mat img_matrix;
+    // img_matrix = cv::imread("flower.jpg", CV_LOAD_IMAGE_GRAYSCALE);
 
-    Logger::log_info("Image read", false);
-    cv::imwrite("orig.jpg", img_matrix);
-    vector<vector<uint8_t>> image(img_matrix.rows, vector<uint8_t>(img_matrix.cols));
-    for (int i = 0; i < img_matrix.rows; i++) {
-        for (int j = 0; j < img_matrix.cols; j++) {
-            image[i][j] = uint8_t(img_matrix.at<uint8_t>(i, j));
-        }
-    }
+    // Logger::log_info("Image read", false);
+    // cv::imwrite("orig.jpg", img_matrix);
+    // vector<vector<uint8_t>> image(img_matrix.rows, vector<uint8_t>(img_matrix.cols));
+    // for (int i = 0; i < img_matrix.rows; i++) {
+    //     for (int j = 0; j < img_matrix.cols; j++) {
+    //         image[i][j] = uint8_t(img_matrix.at<uint8_t>(i, j));
+    //     }
+    // }
 
 
-    for (double threshold = 0.000001; thresh < 1; threshold *= 10) {
-        Sequential::compress_img(image, threshold);
+    // for (double threshold = 0.000001; thresh < 1; threshold *= 10) {
+    //     Sequential::compress_img(image, threshold);
 
-        for (int i = 0; i < img_matrix.rows; i++) {
-            for (int j = 0; j < img_matrix.cols; j++) {
-                img_matrix.at<uint8_t>(i, j) = image[i][j];
-            }
-        }
-    }
+    //     for (int i = 0; i < img_matrix.rows; i++) {
+    //         for (int j = 0; j < img_matrix.cols; j++) {
+    //             img_matrix.at<uint8_t>(i, j) = image[i][j];
+    //         }
+    //     }
+    // }
 
-    string img_string = "compressed.jpg";
-    cv::imwrite(img_string, img_matrix);
+    // string img_string = "compressed.jpg";
+    // cv::imwrite(img_string, img_matrix);
 
 }
 
