@@ -2,47 +2,58 @@
 #include "logger.h"
 // #include <opencv2/core/core.hpp>
 // #include <opencv2/highgui/highgui.hpp>
+#include <cstdlib>
+#include <fstream>
 #include <math.h>
 #include <iostream>
 #include <string>
+#include <algorithm>
+#include <chrono>
+#include <vector>
 
-const double ANGLE_MULT = 2 * M_PI;
 
 namespace Sequential {
 
-    void bit_reverse(int size, vector<cmplx>& data) {
-        for (int i = 1, j = 0; i < size; i++) {
+    void bit_reverse(int size, vector<cmplx>& rev, vector<cmplx>& orig) {
+        for (int i = 1, j = 0; i < size; ++i) {
             int bit = size >> 1;
             for (; j >= bit; bit >>= 1) {
                 j -= bit;
             }
+            j += bit;
             if (i < j) {
-                swap(data[i], data[j]);
+                rev[i] = orig[j];
+                rev[j] = orig[i];
+                // swap(data[i], data[j]);
             }
         }
     }
 
-    void fft(vector<cmplx>& data, bool invert) {
-        int size = data.size();
+    vector<cmplx> fft(vector<cmplx>& data_arr, bool invert) {
+        int size = data_arr.size();
 
         // do bit reversal to group even and odd indices in data
-        Logger::log_info("Reversing bits", false);
-        bit_reverse(size, data);
+        // Logger::log_info("Reversing bits", false);
+        vector<cmplx> data(size);
+        bit_reverse(size, data, data_arr);
+
 
         // Fft algorithm
         // bottom up algorithm that starts working on arr of len 2, 4, 8, ...
-        Logger::log_info("Starting 1D FFT", false);
+        // Logger::log_info("Starting 1D FFT", false);
         for (int curr_length = 2; curr_length <= size; curr_length <<= 1) {
             // e^angle / curr_length
-            double angle = ANGLE_MULT / curr_length * (invert ? 1 : -1);
+            double angle = ANGLE_MULT / (curr_length * (invert ? 1 : -1));
             cmplx wlen(cos(angle), sin(angle));
 
             for (int i = 0; i < size; i += curr_length) {
                 cmplx w(1);
                 // compute for even and odd halfs simutaneously
                 for (int j = 0; j < curr_length / 2; j++) {
-                    data[i + j] = (data[i + j]) + (w * data[i + j + curr_length / 2]);
-                    data[i + j + curr_length / 2] = (data[i + j]) - (w * data[i + j + curr_length / 2]);
+                    cmplx u = data[i + j];
+                    cmplx v = data[i + j + curr_length / 2] * w;
+                    data[i + j] = u + v;
+                    data[i + j + curr_length / 2] = u - v;
                     w *= wlen;
                 }
             }
@@ -56,6 +67,8 @@ namespace Sequential {
             }
         }
 
+        return data;
+
     }
 
     void fft_2D(vector<vector<cmplx>>& data, bool invert) {
@@ -64,7 +77,7 @@ namespace Sequential {
         // first transform rows
         Logger::log_info("Transforming rows for 2D FFT", false);
         for (int i = 0; i < matrix.size(); i++) {
-            fft(matrix[i], invert);
+            matrix[i] = fft(matrix[i], invert);
         }
 
         // now transform columns, by transposing the matrix
@@ -83,7 +96,7 @@ namespace Sequential {
 
         Logger::log_info("Transforming cols for 2D FFT", false);
         for (int i = 0; i < matrix.size(); i++) {
-            fft(matrix[i], invert);
+            matrix[i] = fft(matrix[i], invert);
         }
 
         // now we can restore the result by transposing again
@@ -178,39 +191,22 @@ namespace Sequential {
 
 int main() {
 
-    // vector<int> a = {1,1};
-    // vector<int> b = {1,2,3};
-    // vector<int> result = Sequential::multiply_poly(a, b);
+    ofstream out("outs.txt");
+    std::cout.rdbuf(out.rdbuf());
+    // vector<cmplx> result = {1, 2, 3, 4, 5, 6, 7, 8};
+    vector<cmplx> result(1048576);
+    generate(result.begin(), result.end(), rand);
+
+    auto start = chrono::high_resolution_clock::now();
+    result = Sequential::fft(result, false);
+    auto stop = chrono::high_resolution_clock::now();
+    auto duration = chrono::duration_cast<chrono::microseconds>(stop - start);
+    cout << duration.count() << endl;
+
     // for (int i = 0; i < result.size(); i++) {
     //     cout << result[i] << " ";
     // }
     // cout << "\n";
-
-    // Mat img_matrix;
-    // img_matrix = cv::imread("flower.jpg", CV_LOAD_IMAGE_GRAYSCALE);
-
-    // Logger::log_info("Image read", false);
-    // cv::imwrite("orig.jpg", img_matrix);
-    // vector<vector<uint8_t>> image(img_matrix.rows, vector<uint8_t>(img_matrix.cols));
-    // for (int i = 0; i < img_matrix.rows; i++) {
-    //     for (int j = 0; j < img_matrix.cols; j++) {
-    //         image[i][j] = uint8_t(img_matrix.at<uint8_t>(i, j));
-    //     }
-    // }
-
-
-    // for (double threshold = 0.000001; thresh < 1; threshold *= 10) {
-    //     Sequential::compress_img(image, threshold);
-
-    //     for (int i = 0; i < img_matrix.rows; i++) {
-    //         for (int j = 0; j < img_matrix.cols; j++) {
-    //             img_matrix.at<uint8_t>(i, j) = image[i][j];
-    //         }
-    //     }
-    // }
-
-    // string img_string = "compressed.jpg";
-    // cv::imwrite(img_string, img_matrix);
 
 }
 
