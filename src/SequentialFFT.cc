@@ -1,5 +1,6 @@
 #include "FFT.h"
 #include "logger.h"
+#include "parser.h"
 // #include <opencv2/core/core.hpp>
 // #include <opencv2/highgui/highgui.hpp>
 #include <cstdlib>
@@ -189,12 +190,14 @@ namespace Sequential {
     }
 }
 
-int main() {
+int main(int argc, char** argv) {
 
-    ofstream out("outs.txt");
-    std::cout.rdbuf(out.rdbuf());
+    Parser* ip = new Parser();
+    ip->parse(argc, argv);
+    // ofstream out(ip->outfile);
+    // std::cout.rdbuf(out.rdbuf());
     // vector<cmplx> result = {1, 2, 3, 4, 5, 6, 7, 8};
-    vector<cmplx> result(1048576);
+    vector<cmplx> result(ip->length);
     generate(result.begin(), result.end(), rand);
 
     auto start = chrono::high_resolution_clock::now();

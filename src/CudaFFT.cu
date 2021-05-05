@@ -1,5 +1,6 @@
 #include "FFT.h"
 #include "logger.h"
+#include "parser.h"
 #include <cmath>
 #include <crt/host_defines.h>
 #include <cstdlib>
@@ -97,22 +98,10 @@ __global__ void fft_outer_loop(cmplx_struct* __restrict__ numbers, int len, int 
     }
 }
 
-
-void fft(vector<cmplx>& array, bool invert, int balance, int threads) {
-    int size = (int) array.size();
-    cmplx_struct* data = (cmplx_struct*)malloc(sizeof(cmplx_struct) * size);
-    for (int i = 0; i < size; i++) {
-        data[i].x = array[i].real();
-        data[i].y = array[i].imag();
-    }
-
-    cmplx_struct *reversed_nums, *nums;
-    cudaMalloc((void **)&reversed_nums, sizeof(cmplx_struct) * size);
-    cudaMalloc((void **)&nums, sizeof(cmplx_struct) * size);
-    cudaMemcpy(nums, data, sizeof(cmplx_struct) * size, cudaMemcpyHostToDevice);
-
-    // power of 2
+void real_fft(int size, int threads, cmplx_struct* reversed_nums, cmplx_struct* nums, int balance, bool invert) {
     int power = log2(size);
+
+    auto start = chrono::high_resolution_clock::now();
 
     reorder_array<<<ceil(float(size) / threads), threads>>>(reversed_nums, nums, power, threads, size);
 
@@ -134,6 +123,28 @@ void fft(vector<cmplx>& array, bool invert, int balance, int threads) {
     if (invert) {
         inverse_divide<<<ceil((float) size / threads), threads>>>(reversed_nums, size, threads);
     }
+
+    auto stop = chrono::high_resolution_clock::now();
+    auto duration = chrono::duration_cast<chrono::microseconds>(stop - start);
+    cout << duration.count() << endl;
+
+}
+
+
+void fft(vector<cmplx>& array, bool invert, int balance, int threads) {
+    int size = (int) array.size();
+    cmplx_struct* data = (cmplx_struct*)malloc(sizeof(cmplx_struct) * size);
+    for (int i = 0; i < size; i++) {
+        data[i].x = array[i].real();
+        data[i].y = array[i].imag();
+    }
+
+    cmplx_struct *reversed_nums, *nums;
+    cudaMalloc((void **)&reversed_nums, sizeof(cmplx_struct) * size);
+    cudaMalloc((void **)&nums, sizeof(cmplx_struct) * size);
+    cudaMemcpy(nums, data, sizeof(cmplx_struct) * size, cudaMemcpyHostToDevice);
+
+    real_fft(size, threads, reversed_nums, nums, balance, invert);
 
     cmplx_struct* results;
     results = (cmplx_struct*)malloc(sizeof(cmplx_struct) * size);
@@ -213,19 +224,17 @@ vector<int> multiply_poly(vector<int> first, vector<int> second, int thread_bala
 
 
 int main(int argc, char** argv) {
-    // vector<int> fa(10000);
-    // generate(fa.begin(), fa.end(), rand);
-    vector<cmplx> result(1048576);
+
+    Parser* ip = new Parser();
+    ip->parse(argc, argv);
+    vector<cmplx> result(ip->length);
     generate(result.begin(), result.end(), rand);
-    // vector<int> fa = {1,1};
-    ofstream out("outp.txt");
-    std::cout.rdbuf(out.rdbuf());
-    // vector<cmplx> result = {1, 2, 3, 4, 5, 6, 7, 8};
+
     auto start = chrono::high_resolution_clock::now();
-    fft(result, false, 2, 16384);
+    fft(result, false, 2, ip->threads);
     auto stop = chrono::high_resolution_clock::now();
     auto duration = chrono::duration_cast<chrono::microseconds>(stop - start);
-    cout << duration.count() << endl;
+    // cout << duration.count() << endl;
 
     // vector<int> result = multiply_poly(fa, fb, 2, 1024);
     // for (int i = 0; i < result.size(); i++) {
