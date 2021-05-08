@@ -1,8 +1,8 @@
 #include "FFT.h"
 #include "logger.h"
 #include "parser.h"
-#include <opencv4/opencv2/core/core.hpp>
-#include <opencv4/opencv2/highgui/highgui.hpp>
+// #include <opencv4/opencv2/core/core.hpp>
+// #include <opencv4/opencv2/highgui/highgui.hpp>
 #include <cstdlib>
 #include <fstream>
 #include <math.h>
@@ -12,7 +12,7 @@
 #include <chrono>
 #include <vector>
 
-using namespace cv;
+// using namespace cv;
 
 namespace Sequential {
 
@@ -194,31 +194,34 @@ int main(int argc, char** argv) {
     // Parser* ip = new Parser();
     // ip->parse(argc, argv);
 
-    // for (int i = 0; i < result.size(); i++) {
-    //     cout << result[i] << " ";
-    // }
-    // cout << "\n";
+    vector<cmplx> result = {1, 2, 3, 4, 5, 6, 7, 8};
+    result = Sequential::fft(result, false);
 
-    Mat image_M;
-    image_M = imread("scene.jpg", IMREAD_GRAYSCALE);
-    if (!image_M.data) {
-        cout << "Could not open or find the image" << std::endl;
-        return -1;
+    for (int i = 0; i < result.size(); i++) {
+        cout << result[i] << " ";
     }
+    cout << "\n";
 
-    imwrite("original.jpg", image_M);
-    vector<vector<uint8_t>> image(image_M.rows, vector<uint8_t>(image_M.cols));
-    for (int i = 0; i < image_M.rows; ++i)
-        for (int j = 0; j < image_M.cols; ++j)
-            image[i][j] = uint8_t(image_M.at<uint8_t>(i, j));
+    // Mat image_M;
+    // image_M = imread("scene.jpg", IMREAD_GRAYSCALE);
+    // if (!image_M.data) {
+    //     cout << "Could not open or find the image" << std::endl;
+    //     return -1;
+    // }
+
+    // imwrite("original.jpg", image_M);
+    // vector<vector<uint8_t>> image(image_M.rows, vector<uint8_t>(image_M.cols));
+    // for (int i = 0; i < image_M.rows; ++i)
+    //     for (int j = 0; j < image_M.cols; ++j)
+    //         image[i][j] = uint8_t(image_M.at<uint8_t>(i, j));
         
-    Sequential::compress_img(image, 0.000001);
+    // Sequential::compress_img(image, 0.000001);
 
-    for (int i = 0; i < image_M.rows; ++i)
-            for (int j = 0; j < image_M.cols; ++j)
-                image_M.at<uint8_t>(i, j) = image[i][j];
+    // for (int i = 0; i < image_M.rows; ++i)
+    //         for (int j = 0; j < image_M.cols; ++j)
+    //             image_M.at<uint8_t>(i, j) = image[i][j];
     
-    imwrite("compressed.jpg", image_M);
+    // imwrite("compressed.jpg", image_M);
 
 }
 

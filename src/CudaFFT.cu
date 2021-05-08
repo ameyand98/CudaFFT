@@ -233,7 +233,7 @@ int main(int argc, char** argv) {
     // generate(result.begin(), result.end(), rand);
 
     // auto start = chrono::high_resolution_clock::now();
-    vector<cmplx> result = {1, 2, 3, 4, 5, 6, 7, 8, 9};
+    vector<cmplx> result = {1, 2, 3, 4, 5, 6, 7, 8};
     fft(result, false, 2, 4);
     // auto stop = chrono::high_resolution_clock::now();
     // auto duration = chrono::duration_cast<chrono::microseconds>(stop - start);
