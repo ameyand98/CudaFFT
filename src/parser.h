@@ -14,6 +14,9 @@ public:
     string outfile = "";
     int length = 0;
     int threads = 0;
+    int dim = 1;
+    int out_data = 0;
+    int integer = 0;
 };
 
 

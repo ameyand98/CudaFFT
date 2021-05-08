@@ -5,7 +5,7 @@
 bool Parser::parse(int argc, char **argv) {
     int input;
 
-    while ((input = getopt(argc, argv, "i:o:r:n:t:")) != -1) {
+    while ((input = getopt(argc, argv, "i:o:r:n:t:d:w:x:")) != -1) {
         switch (input) {
             case 'i':
                 infile = optarg;
@@ -21,6 +21,15 @@ bool Parser::parse(int argc, char **argv) {
                 break;
             case 't':
                 threads = stoi(optarg);
+                break;
+            case 'd':
+                dim = stoi(optarg);
+                break;
+            case 'w':
+                out_data = stoi(optarg);
+                break;
+            case 'x':
+                integer = stoi(optarg);
                 break;
         }
     }
