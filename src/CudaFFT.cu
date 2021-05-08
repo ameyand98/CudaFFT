@@ -14,6 +14,8 @@
 #include <algorithm>
 #include <chrono>
 #include <fstream>
+// #include <opencv2/core/core.hpp>
+// #include <opencv2/highgui/highgui.hpp>
 
 using namespace std;
 
@@ -105,8 +107,8 @@ void real_fft(int size, int threads, cmplx_struct* reversed_nums, cmplx_struct* 
 
     reorder_array<<<ceil(float(size) / threads), threads>>>(reversed_nums, nums, power, threads, size);
 
-    // need to wait for all the bits to be reversed
-    cudaDeviceSynchronize();
+    // no need to wait for all the bits to be reversed (implicit sync)
+    // cudaDeviceSynchronize();
 
     // parallel fft
     for (int len = 2; len <= size; len <<= 1) {
@@ -225,22 +227,36 @@ vector<int> multiply_poly(vector<int> first, vector<int> second, int thread_bala
 
 int main(int argc, char** argv) {
 
-    Parser* ip = new Parser();
-    ip->parse(argc, argv);
-    vector<cmplx> result(ip->length);
-    generate(result.begin(), result.end(), rand);
+    // Parser* ip = new Parser();
+    // ip->parse(argc, argv);
+    // vector<cmplx> result(ip->length);
+    // generate(result.begin(), result.end(), rand);
 
-    auto start = chrono::high_resolution_clock::now();
-    fft(result, false, 2, ip->threads);
-    auto stop = chrono::high_resolution_clock::now();
-    auto duration = chrono::duration_cast<chrono::microseconds>(stop - start);
+    // auto start = chrono::high_resolution_clock::now();
+    vector<cmplx> result = {1, 2, 3, 4, 5, 6, 7, 8, 9};
+    fft(result, false, 2, 4);
+    // auto stop = chrono::high_resolution_clock::now();
+    // auto duration = chrono::duration_cast<chrono::microseconds>(stop - start);
     // cout << duration.count() << endl;
 
     // vector<int> result = multiply_poly(fa, fb, 2, 1024);
-    // for (int i = 0; i < result.size(); i++) {
-    //     cout << result[i] << " ";
-    // }
-    // cout << "\n";
+    for (int i = 0; i < result.size(); i++) {
+        cout << result[i] << " ";
+    }
+    cout << "\n";
+
+    // std::vector<int> fa(ip->length);
+    // std::generate(fa.begin(), fa.end(), std::rand);
+    // std::vector<int> fb(ip->length);
+    // std::generate(fb.begin(), fb.end(), std::rand);
+
+    // auto start = chrono::high_resolution_clock::now(); 
+    // auto result_parallel = multiply_poly(fa, fb, 4, ip->threads);
+    // auto stop = chrono::high_resolution_clock::now();
+    // auto duration = chrono::duration_cast<chrono::microseconds>(stop - start);
+    // cout << duration.count() << endl;
+
+
     
 }
 

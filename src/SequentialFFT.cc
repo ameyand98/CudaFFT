@@ -15,28 +15,25 @@
 
 namespace Sequential {
 
-    void bit_reverse(int size, vector<cmplx>& rev, vector<cmplx>& orig) {
+    void bit_reverse(int size, vector<cmplx>& data) {
         for (int i = 1, j = 0; i < size; ++i) {
             int bit = size >> 1;
-            for (; j >= bit; bit >>= 1) {
-                j -= bit;
+            for (; j & bit; bit >>= 1) {
+                j ^= bit;
             }
-            j += bit;
+            j ^= bit;
             if (i < j) {
-                rev[i] = orig[j];
-                rev[j] = orig[i];
-                // swap(data[i], data[j]);
+                swap(data[i], data[j]);
             }
         }
     }
 
-    vector<cmplx> fft(vector<cmplx>& data_arr, bool invert) {
-        int size = data_arr.size();
+    vector<cmplx> fft(vector<cmplx>& data, bool invert) {
+        int size = data.size();
 
         // do bit reversal to group even and odd indices in data
         // Logger::log_info("Reversing bits", false);
-        vector<cmplx> data(size);
-        bit_reverse(size, data, data_arr);
+        bit_reverse(size, data);
 
 
         // Fft algorithm
@@ -192,25 +189,13 @@ namespace Sequential {
 
 int main(int argc, char** argv) {
 
-    Parser* ip = new Parser();
-    ip->parse(argc, argv);
-    // ofstream out(ip->outfile);
-    // std::cout.rdbuf(out.rdbuf());
-    // vector<cmplx> result = {1, 2, 3, 4, 5, 6, 7, 8};
-    vector<cmplx> result(ip->length);
-    generate(result.begin(), result.end(), rand);
-
-    auto start = chrono::high_resolution_clock::now();
-    result = Sequential::fft(result, false);
-    auto stop = chrono::high_resolution_clock::now();
-    auto duration = chrono::duration_cast<chrono::microseconds>(stop - start);
-    cout << duration.count() << endl;
+    // Parser* ip = new Parser();
+    // ip->parse(argc, argv);
 
     // for (int i = 0; i < result.size(); i++) {
     //     cout << result[i] << " ";
     // }
     // cout << "\n";
-
 }
 
 

@@ -3,16 +3,16 @@ SUBDIRS = src
 .PHONY: clean subdirs $(SUBDIRS)
 
 seq:
-	$(MAKE) -C $(SUBDIRS) seq
+	$(MAKE) -s -C $(SUBDIRS) seq
 
 par:
-	$(MAKE) -C $(SUBDIRS) par
+	@$(MAKE) -s -C $(SUBDIRS) par
 
 clean:
 	$(MAKE) -C $(SUBDIRS) clean
 
 run_seq:
-	$(MAKE) -C $(SUBDIRS) run_seq
+	$(MAKE) -s -C $(SUBDIRS) run_seq
 
 run_par:
-	$(MAKE) -C $(SUBDIRS) run_par
+	@$(MAKE) -s -C $(SUBDIRS) run_par
