@@ -1,8 +1,8 @@
 #include "FFT.h"
 #include "logger.h"
 #include "parser.h"
-// #include <opencv2/core/core.hpp>
-// #include <opencv2/highgui/highgui.hpp>
+#include <opencv4/opencv2/core/core.hpp>
+#include <opencv4/opencv2/highgui/highgui.hpp>
 #include <cstdlib>
 #include <fstream>
 #include <math.h>
@@ -12,6 +12,7 @@
 #include <chrono>
 #include <vector>
 
+using namespace cv;
 
 namespace Sequential {
 
@@ -38,7 +39,7 @@ namespace Sequential {
 
         // Fft algorithm
         // bottom up algorithm that starts working on arr of len 2, 4, 8, ...
-        // Logger::log_info("Starting 1D FFT", false);
+        Logger::log_info("Starting 1D FFT", false);
         for (int curr_length = 2; curr_length <= size; curr_length <<= 1) {
             // e^angle / curr_length
             double angle = ANGLE_MULT / (curr_length * (invert ? 1 : -1));
@@ -75,6 +76,7 @@ namespace Sequential {
         // first transform rows
         Logger::log_info("Transforming rows for 2D FFT", false);
         for (int i = 0; i < matrix.size(); i++) {
+            cout << matrix.size() << endl;
             matrix[i] = fft(matrix[i], invert);
         }
 
@@ -196,6 +198,28 @@ int main(int argc, char** argv) {
     //     cout << result[i] << " ";
     // }
     // cout << "\n";
+
+    Mat image_M;
+    image_M = imread("scene.jpg", IMREAD_GRAYSCALE);
+    if (!image_M.data) {
+        cout << "Could not open or find the image" << std::endl;
+        return -1;
+    }
+
+    imwrite("original.jpg", image_M);
+    vector<vector<uint8_t>> image(image_M.rows, vector<uint8_t>(image_M.cols));
+    for (int i = 0; i < image_M.rows; ++i)
+        for (int j = 0; j < image_M.cols; ++j)
+            image[i][j] = uint8_t(image_M.at<uint8_t>(i, j));
+        
+    Sequential::compress_img(image, 0.000001);
+
+    for (int i = 0; i < image_M.rows; ++i)
+            for (int j = 0; j < image_M.cols; ++j)
+                image_M.at<uint8_t>(i, j) = image[i][j];
+    
+    imwrite("compressed.jpg", image_M);
+
 }
 
 
