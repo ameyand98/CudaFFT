@@ -4,6 +4,7 @@
 // #include <opencv4/opencv2/core/core.hpp>
 // #include <opencv4/opencv2/highgui/highgui.hpp>
 #include <cstdlib>
+#include <ctime>
 #include <fstream>
 #include <math.h>
 #include <iostream>
@@ -15,6 +16,7 @@
 
 int main(int argc, char** argv) {
 
+    srand(time(NULL));
     Parser* ip = new Parser();
     ip->parse(argc, argv);
 
@@ -30,9 +32,13 @@ int main(int argc, char** argv) {
     for (int i = 0; i < runs; i++) {
         if (integer) {
             std::vector<int> data1(ip->length);
-            generate(data1.begin(), data1.end(), std::rand);
+            generate(data1.begin(), data1.end(), []{
+                return rand() % 1000;
+            });
             std::vector<int> data2(ip->length);
-            generate(data2.begin(), data2.end(), std::rand);
+            generate(data2.begin(), data2.end(), []{
+                return rand() % 1000;
+            });
 
             vector<int> result = Sequential::multiply_poly(data1, data2);
             if (out_data) {
@@ -43,9 +49,13 @@ int main(int argc, char** argv) {
             }
         } else {
             std::vector<double> data1(ip->length);
-            generate(data1.begin(), data1.end(), std::rand);
+            generate(data1.begin(), data1.end(), []{
+                return rand() % 1000;
+            });
             std::vector<double> data2(ip->length);
-            generate(data2.begin(), data2.end(), std::rand);
+            generate(data2.begin(), data2.end(), []{
+                return rand() % 1000;
+            });
 
             vector<double> result = Sequential::multiply_poly(data1, data2);
             if (out_data) {
@@ -57,33 +67,8 @@ int main(int argc, char** argv) {
 
         }
 
-
-
     }
     
-
-
-
-    // Mat image_M;
-    // image_M = imread("scene.jpg", IMREAD_GRAYSCALE);
-    // if (!image_M.data) {
-    //     cout << "Could not open or find the image" << std::endl;
-    //     return -1;
-    // }
-
-    // imwrite("original.jpg", image_M);
-    // vector<vector<uint8_t>> image(image_M.rows, vector<uint8_t>(image_M.cols));
-    // for (int i = 0; i < image_M.rows; ++i)
-    //     for (int j = 0; j < image_M.cols; ++j)
-    //         image[i][j] = uint8_t(image_M.at<uint8_t>(i, j));
-        
-    // Sequential::compress_img(image, 0.000001);
-
-    // for (int i = 0; i < image_M.rows; ++i)
-    //         for (int j = 0; j < image_M.cols; ++j)
-    //             image_M.at<uint8_t>(i, j) = image[i][j];
-    
-    // imwrite("compressed.jpg", image_M);
 
 }
 

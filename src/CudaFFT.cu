@@ -193,35 +193,55 @@ void fft_2D(vector<vector<cmplx> >& data, bool invert, int thread_balance, int t
 }
 
 
-vector<int> multiply_poly(vector<int> first, vector<int> second, int thread_balance, int threads) {
-    vector<cmplx> cmplx_poly1(first.begin(), first.end()), cmplx_poly2(second.begin(), second.end());
-
-    int size = 1;
-    int maximum = max(first.size(), second.size());
-    while (size < maximum) {
-        size <<= 1;
-    }
-    size <<= 1;
-
-    cmplx_poly1.resize(size);
-    cmplx_poly2.resize(size);
-
-    fft(cmplx_poly1, false, thread_balance, threads);
-    fft(cmplx_poly2, false, thread_balance, threads);
-
-    for (int i = 0; i < size; i++) {
-        cmplx_poly1[i] *= cmplx_poly2[i];
+void compress_image(vector<vector<uint8_t>> &image, double threshold, int balance, int threads) {
+    //Convert image to complex type
+    vector<vector<cmplx>> complex_image(image.size(), vector<base>(image[0].size()));
+    for (int i = 0; i < image.size(); i++) {
+        for (int j = 0; j < image[0].size(); j++) {
+            complex_image[i][j] = image[i][j];
+        }
     }
 
-    fft(cmplx_poly1, true, thread_balance, threads);
+    //Perform 2D fft on image
+    fft_2D(complex_image, false, balance, threads);
 
-    vector<int> results;
-    results.resize(size);
-    for (int i = 0; i < size; i++) {
-        results[i] = int(cmplx_poly1[i].real() + 0.5);
+    //Threshold the fft
+
+    double maximum_value = 0.0;
+    for (int i = 0; i < complex_image.size(); i++) {
+        for (int j = 0; j < complex_image[0].size(); j++) {
+            maximum_value = max(maximum_value, abs(complex_image[i][j]));
+        }
+    }
+    threshold *= maximum_value;
+
+    for (int i = 0; i < complex_image.size(); i++) {
+        for (int j = 0; j < complex_image[0].size(); j++) {
+            if (abs(complex_image[i][j]) < threshold) {
+                complex_image[i][j] = 0;
+            }
+        }
+    }
+    int zeros_count = 0;
+    for (int i = 0; i < complex_image.size(); i++) {
+        for (int j = 0; j < complex_image[0].size(); j++) {
+            if (abs(complex_image[i][j]) == 0) {
+                zeros_count++;
+            }
+        }
+    }
+    cout << "Components removed: " << ((zeros_count*1.00/(complex_image.size()*complex_image[0].size())))*100 << endl;
+
+    // Perform inverse FFT
+    fft_2D(complex_image, true, balance, threads);
+
+    // We will consider only the real part of the image
+    for (int i = 0; i < complex_image.size(); i++) {
+        for (int j = 0; j < complex_image[0].size(); j++) {
+            image[i][j] = uint8_t(complex_image[i][j].real() + 0.5);
+        }
     }
 
-    return results;
 }
 
 

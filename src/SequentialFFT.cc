@@ -17,8 +17,21 @@ namespace Sequential {
         }
     }
 
+    bool is_power2(int x) {
+        return (x != 0) && ((x & (x - 1)) == 0);
+    }
+
     vector<cmplx> fft(vector<cmplx>& data, bool invert) {
         int size = data.size();
+        // if (!is_power2(size)) {
+        //     int s = 1;
+        //     while (s < size) {
+        //         s <<= 1;
+        //     }
+        //     s <<= 1;
+        //     data.resize(s);
+        //     size = s;
+        // }
 
         // do bit reversal to group even and odd indices in data
         // Logger::log_info("Reversing bits", false);
@@ -27,7 +40,7 @@ namespace Sequential {
 
         // Fft algorithm
         // bottom up algorithm that starts working on arr of len 2, 4, 8, ...
-        Logger::log_info("Starting 1D FFT", false);
+        // Logger::log_info("Starting 1D FFT", false);
         for (int curr_length = 2; curr_length <= size; curr_length <<= 1) {
             // e^angle / curr_length
             double angle = ANGLE_MULT / (curr_length * (invert ? 1 : -1));
@@ -59,20 +72,25 @@ namespace Sequential {
     }
 
     void fft_2D(vector<vector<cmplx>>& data, bool invert) {
+        // rows = 4
+        // cols = 6
+        int rows = data.size();
+        int cols = data[0].size();
         auto matrix = data;
 
         // first transform rows
-        Logger::log_info("Transforming rows for 2D FFT", false);
+        // Logger::log_info("Transforming rows for 2D FFT", false);
         for (int i = 0; i < matrix.size(); i++) {
-            cout << matrix.size() << endl;
-            matrix[i] = fft(matrix[i], invert);
+            // cout << matrix.size() << endl;
+            fft(matrix[i], invert);
         }
 
         // now transform columns, by transposing the matrix
-        Logger::log_info("Transposing the 2D matrix", false);
+        // Logger::log_info("Transposing the 2D matrix", false);
         data = matrix;
+        // matrix.resize(data[0].size());
         matrix.resize(data[0].size());
-        for (int i = 0; matrix.size(); i++) {
+        for (int i = 0; i < matrix.size(); i++) {
             matrix[i].resize(data.size());
         }
 
@@ -82,16 +100,20 @@ namespace Sequential {
             }
         }
 
-        Logger::log_info("Transforming cols for 2D FFT", false);
+        // Logger::log_info("Transforming cols for 2D FFT", false);
         for (int i = 0; i < matrix.size(); i++) {
-            matrix[i] = fft(matrix[i], invert);
+            fft(matrix[i], invert);
         }
 
         // now we can restore the result by transposing again
-        Logger::log_info("Restoring by re-transposing", false);
+        // Logger::log_info("Restoring by re-transposing", false);
+        // cout << rows << " " << cols << endl;
         for (int i = 0; i < data.size(); i++) {
             for (int j = 0; j < data[0].size(); j++) {
-                data[i][j] = matrix[j][i];
+                // cout << i  << " " << j << endl;
+                // cout << data.size() << " ------- " << data[0].size() << endl;
+                // cout << matrix.size() << " ------- " << matrix[0].size() << endl;
+                data[j][i] = matrix[i][j];
             }
         }
     }
@@ -115,7 +137,7 @@ namespace Sequential {
 
         double max_val = 0; 
         for (int i = 0; i < cmplx_img.size(); i++) {
-            for (int j = 0; j < cmplx_img.size(); j++) {
+            for (int j = 0; j < cmplx_img[0].size(); j++) {
                 max_val = max(max_val, (double) abs(cmplx_img[i][j]));
             }
         }

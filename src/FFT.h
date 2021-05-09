@@ -1,12 +1,12 @@
 #ifndef _FFT_H_
-#include <vector_types.h>
+// #include <vector_types.h>
 #include <vector>
 #include <complex>
 
 using namespace std;
 
 using cmplx = complex<float>;
-using cmplx_struct = float2; // needed for cuda array
+// using cmplx_struct = float2; // needed for cuda array
 
 const double ANGLE_MULT = 2 * M_PI;
 
@@ -40,12 +40,52 @@ namespace Sequential {
         result.resize(size);
 
         for (int i = 0; i < size; i++) {
-            result[i] = int(f_cmplx[i].real() + 0.5);
+            result[i] = (f_cmplx[i].real() + 0.5);
         }
 
         return result;
     }
+    extern bool is_power2(int x);
 
+}
+
+namespace CUDA {
+
+    extern void fft_2D(vector<vector<cmplx> >& data, bool invert, int thread_balance, int threads);
+    extern void fft(vector<cmplx>& array, bool invert, int balance, int threads);
+    extern void real_fft(int size, int threads, cmplx_struct* reversed_nums, cmplx_struct* nums, int balance, bool invert);
+
+    template <typename T>
+    vector<T> multiply_poly(vector<T> first, vector<T> second, int thread_balance, int threads) {
+        vector<cmplx> cmplx_poly1(first.begin(), first.end()), cmplx_poly2(second.begin(), second.end());
+
+        int size = 1;
+        int maximum = max(first.size(), second.size());
+        while (size < maximum) {
+            size <<= 1;
+        }
+        size <<= 1;
+
+        cmplx_poly1.resize(size);
+        cmplx_poly2.resize(size);
+
+        fft(cmplx_poly1, false, thread_balance, threads);
+        fft(cmplx_poly2, false, thread_balance, threads);
+
+        for (int i = 0; i < size; i++) {
+            cmplx_poly1[i] *= cmplx_poly2[i];
+        }
+
+        fft(cmplx_poly1, true, thread_balance, threads);
+
+        vector<T> results;
+        results.resize(size);
+        for (int i = 0; i < size; i++) {
+            results[i] = (cmplx_poly1[i].real() + 0.5);
+        }
+
+        return results;
+    }
 }
 
 
