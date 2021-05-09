@@ -1,8 +1,6 @@
 #include "FFT.h"
 #include "logger.h"
 #include "parser.h"
-// #include <opencv4/opencv2/core/core.hpp>
-// #include <opencv4/opencv2/highgui/highgui.hpp>
 #include <cstdlib>
 #include <ctime>
 #include <fstream>
@@ -42,7 +40,7 @@ int main(int argc, char** argv) {
                 return rand() % 1000;
             });
 
-            vector<int> result = Sequential::multiply_poly(data1, data2);
+            vector<int> result = CUDA::multiply_poly(data1, data2, 4, num_threads);
             if (out_data) {
                 for (int i = 0; i < result.size(); i++) {
                     out_file << result[i];
@@ -52,7 +50,7 @@ int main(int argc, char** argv) {
 
             auto stop = chrono::high_resolution_clock::now();
             auto duration = chrono::duration_cast<chrono::microseconds>(stop - start);
-            cout << "Seq Polynomial multiplication time (micros) - " << duration.count() << endl;
+            cout << "Cuda end to end Polynomial multiplication time (micros) - " << duration.count() << endl;
         } else {
             std::vector<double> data1(ip->length);
             generate(data1.begin(), data1.end(), []{
@@ -63,7 +61,7 @@ int main(int argc, char** argv) {
                 return rand() % 1000;
             });
 
-            vector<double> result = Sequential::multiply_poly(data1, data2);
+            vector<double> result = CUDA::multiply_poly(data1, data2, 4, num_threads);
             if (out_data) {
                 for (int i = 0; i < result.size(); i++) {
                     out_file << result[i];
@@ -73,7 +71,8 @@ int main(int argc, char** argv) {
 
             auto stop = chrono::high_resolution_clock::now();
             auto duration = chrono::duration_cast<chrono::microseconds>(stop - start);
-            cout << "Seq Polynomial multiplication time (micros) - " << duration.count() << endl;
+            cout << "Cuda end to end Polynomial multiplication time (micros) - " << duration.count() << endl;
+
         }
 
     }

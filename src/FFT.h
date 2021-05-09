@@ -1,12 +1,14 @@
 #ifndef _FFT_H_
-// #include <vector_types.h>
+#include <vector_types.h>
 #include <vector>
 #include <complex>
+#include <chrono>
+#include <iostream>
 
 using namespace std;
 
 using cmplx = complex<float>;
-// using cmplx_struct = float2; // needed for cuda array
+using cmplx_struct = float2; // needed for cuda array
 
 const double ANGLE_MULT = 2 * M_PI;
 
@@ -54,6 +56,7 @@ namespace CUDA {
     extern void fft_2D(vector<vector<cmplx> >& data, bool invert, int thread_balance, int threads);
     extern void fft(vector<cmplx>& array, bool invert, int balance, int threads);
     extern void real_fft(int size, int threads, cmplx_struct* reversed_nums, cmplx_struct* nums, int balance, bool invert);
+    extern void compress_image(vector<vector<uint8_t> > &image, double threshold, int balance, int threads);
 
     template <typename T>
     vector<T> multiply_poly(vector<T> first, vector<T> second, int thread_balance, int threads) {

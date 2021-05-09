@@ -9,7 +9,6 @@ class Parser {
 
 public:
     bool parse(int argc, char** argv); 
-    int runs = 100;
     string infile = "";
     string outfile = "";
     int length = 0;
@@ -17,6 +16,7 @@ public:
     int dim = 1;
     int out_data = 0;
     int integer = 0;
+    int runs = 1;
 };
 
 
