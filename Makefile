@@ -11,11 +11,18 @@ seq_img:
 par_poly:
 	$(MAKE) -s -C $(SUBDIRS) par_poly
 
+par_img:
+	$(MAKE) -s -C $(SUBDIRS) par_img
+
 clean:
 	$(MAKE) -C $(SUBDIRS) clean
 
-run_seq:
-	$(MAKE) -s -C $(SUBDIRS) run_seq
+run_seq_poly:
+	$(MAKE) -s -C $(SUBDIRS) run_seq_poly
 
-run_par:
-	$(MAKE) -s -C $(SUBDIRS) run_par
+run_par_poly:
+	$(MAKE) -s -C $(SUBDIRS) run_par_poly
+
+run_par_img:
+	$(MAKE) -s -C $(SUBDIRS) run_par_img
+

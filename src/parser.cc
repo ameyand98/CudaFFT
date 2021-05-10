@@ -18,7 +18,7 @@ void print_usage(int argc, char ** argv){
 bool Parser::parse(int argc, char **argv) {
     int input;
 
-    while ((input = getopt(argc, argv, "i:o:n:r:t:d:w:x:h:")) != -1) {
+    while ((input = getopt(argc, argv, "i:o:n:r:t:d:w:x:p:")) != -1) {
         switch (input) {
             case 'i':
                 infile = optarg;
@@ -43,6 +43,9 @@ bool Parser::parse(int argc, char **argv) {
                 break;
             case 'x':
                 integer = stoi(optarg);
+                break;
+            case 'p':
+                image = optarg;
                 break;
         }
     }

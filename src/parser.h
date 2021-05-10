@@ -17,6 +17,7 @@ public:
     int out_data = 0;
     int integer = 0;
     int runs = 1;
+    string image = "";
 };
 
 
